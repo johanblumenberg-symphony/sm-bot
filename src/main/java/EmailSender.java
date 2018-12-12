@@ -1,8 +1,11 @@
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
+import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -16,7 +19,7 @@ import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 
 public class EmailSender {
-	public void sendEmail(String subject, String to, String attachment) {
+	public void sendEmail(String subject, List<String> to, String attachment) {
 		final String username = "symsmbot@gmail.com";
 		final String password = "Anu&Johan";
 
@@ -44,7 +47,7 @@ public class EmailSender {
 
 			Message message = new MimeMessage(session);
 			message.setFrom(new InternetAddress(username));
-			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
+			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to.stream().collect(Collectors.joining(","))));
 			message.setSubject(subject);
 			message.setContent(multipart);
 

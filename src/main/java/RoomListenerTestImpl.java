@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.core.NoContentException;
@@ -33,7 +34,6 @@ import model.InboundMessage;
 import model.OutboundMessage;
 import model.RoomMember;
 import model.Stream;
-import model.User;
 import model.UserInfo;
 import model.events.RoomCreated;
 import model.events.RoomDeactivated;
@@ -162,13 +162,12 @@ public class RoomListenerTestImpl implements RoomListener {
 	        		msg = msg + "\n  Inviting " + memberEmail.getKey() + " " + memberEmail.getValue();
 	        	}
 				
-				net.fortuna.ical4j.model.Calendar icsCalendar = calendarCreator.createCalendarEvent(subject, start, end, sender, memberEmails);
-				
-				//msg = msg + "\n " + icsCalendar.toString();
-
-	        	new EmailSender().sendEmail(subject, sender, icsCalendar.toString());
-				
 	        	replyMessage(streamId, msg);
+
+	        	net.fortuna.ical4j.model.Calendar icsCalendar = calendarCreator.createCalendarEvent(subject, start, end, sender, memberEmails);
+				
+				List<String> receivers = memberEmails.entrySet().stream().map(e -> e.getValue()).collect(Collectors.toList());
+	        	new EmailSender().sendEmail(subject, receivers, icsCalendar.toString());				
 	        }
         } catch (ParseException e) {
         	logger.info("Got cli ParseException: " + e.getMessage());

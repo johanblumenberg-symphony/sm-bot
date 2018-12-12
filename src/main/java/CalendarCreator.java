@@ -26,9 +26,9 @@ public class CalendarCreator {
         try {
 
             // Create a TimeZone
-            //TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
-            //TimeZone timezone = registry.getTimeZone("America/Mexico_City");
-            //VTimeZone tz = timezone.getVTimeZone();
+            TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
+            TimeZone timezone = registry.getTimeZone("Europe/Stockholm");
+            VTimeZone tz = timezone.getVTimeZone();
 
             
             // Create the event
@@ -38,7 +38,7 @@ public class CalendarCreator {
             VEvent meeting = new VEvent(start, end, eventName);
 
             // add timezone info..
-            //meeting.getProperties().add(tz.getTimeZoneId());
+            meeting.getProperties().add(tz.getTimeZoneId());
 
             // generate unique identifier..
             UidGenerator ug = new UidGenerator("uidGen");
