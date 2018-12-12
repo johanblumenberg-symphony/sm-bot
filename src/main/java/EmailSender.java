@@ -46,7 +46,6 @@ public class EmailSender {
 			message.setFrom(new InternetAddress(username));
 			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
 			message.setSubject(subject);
-			message.setText("PFA");
 			message.setContent(multipart);
 
 			Transport.send(message);
