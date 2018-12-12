@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.symphony.ps</groupId>
-    <artifactId>sm bot</artifactId>
+    <artifactId>sm-bot</artifactId>
     <version>1.0-SNAPSHOT</version>
 
 
