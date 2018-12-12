@@ -1,25 +1,27 @@
+import java.net.SocketException;
+import java.util.ArrayList;
 
-//import net.fortuna.ical4j.*;
-import net.fortuna.ical4j.model.*;
-import net.fortuna.ical4j.model.component.*;
-import net.fortuna.ical4j.util.*;
+import net.fortuna.ical4j.model.TimeZoneRegistry;
+import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
+import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.TimeZone;
+import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.component.VTimeZone;
 import net.fortuna.ical4j.model.property.*;
 import net.fortuna.ical4j.model.parameter.*;
+import net.fortuna.ical4j.util.UidGenerator;
+
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.SocketException;
-import java.net.URI;
-import java.util.Date;
-import java.util.ArrayList;
 
 public class CalendarCreator {
 
     private final Logger logger = LoggerFactory.getLogger(CalendarCreator.class);
 
     net.fortuna.ical4j.model.Calendar createCalendarEvent(String meetingName, java.util.Date startDate,
-            java.util.Date endDate, Attendee organizer, ArrayList<Attendee> attendeeList) {
+            java.util.Date endDate, Attendee organizer, ArrayList<Attendee> attendeeList) throws Exception {
         try {
 
             // Create a TimeZone
@@ -66,6 +68,10 @@ public class CalendarCreator {
         } catch (SocketException e) {
             logger.info("Got SocketException: " + e.getMessage());
             return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
+        
     }
 }
