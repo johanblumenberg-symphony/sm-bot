@@ -33,6 +33,7 @@ import model.InboundMessage;
 import model.OutboundMessage;
 import model.RoomMember;
 import model.Stream;
+import model.User;
 import model.UserInfo;
 import model.events.RoomCreated;
 import model.events.RoomDeactivated;
@@ -45,7 +46,8 @@ import model.events.UserLeftRoom;
 public class RoomListenerTestImpl implements RoomListener {
 
     private SymBotClient botClient;
-    private final Logger logger = LoggerFactory.getLogger(RoomListenerTestImpl.class);
+	private final Logger logger = LoggerFactory.getLogger(RoomListenerTestImpl.class);
+	private final CalendarCreator calendarCreator = new CalendarCreator();
 
 	Options options = new Options();
 
@@ -116,7 +118,7 @@ public class RoomListenerTestImpl implements RoomListener {
     	return end.getTime();
     }
     
-    private void onBotMessage(String streamId, String message) {
+    private void onBotMessage(String streamId, String sender, String message) {
     	logger.info("onBotMessage()");
 
         try {
@@ -159,7 +161,11 @@ public class RoomListenerTestImpl implements RoomListener {
 	        	for (Map.Entry<Long, String> memberEmail : memberEmails.entrySet()) {
 	        		msg = msg + "\n  Inviting " + memberEmail.getKey() + " " + memberEmail.getValue();
 	        	}
-	        	
+				
+				net.fortuna.ical4j.model.Calendar icsCalendar = calendarCreator.createCalendarEvent(subject, start, end, sender, memberEmails);
+				
+				//msg = msg + "\n " + icsCalendar.toString();
+
 	        	logger.info(msg);
 	        	replyMessage(streamId, msg);
 	        }
@@ -183,10 +189,11 @@ public class RoomListenerTestImpl implements RoomListener {
     
     public void onRoomMessage(InboundMessage inboundMessage) {
     	String message = inboundMessage.getMessageText();
-    	String streamId = inboundMessage.getStream().getStreamId();
+		String streamId = inboundMessage.getStream().getStreamId();
+		String senderEmail = inboundMessage.getUser().getEmail();
     	
     	if (message.startsWith("/smbot")) {
-    		onBotMessage(streamId, message);
+    		onBotMessage(streamId, senderEmail, message);
     	}
     }
 

@@ -1,10 +1,11 @@
 import java.net.SocketException;
-import java.util.ArrayList;
+import java.util.Map;
 
 import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.TimeZone;
+import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.component.VTimeZone;
 import net.fortuna.ical4j.model.property.*;
@@ -20,14 +21,14 @@ public class CalendarCreator {
 
     private final Logger logger = LoggerFactory.getLogger(CalendarCreator.class);
 
-    net.fortuna.ical4j.model.Calendar createCalendarEvent(String meetingName, java.util.Date startDate,
-            java.util.Date endDate, Attendee organizer, ArrayList<Attendee> attendeeList) throws Exception {
+    Calendar createCalendarEvent(String meetingName, java.util.Date startDate,
+            java.util.Date endDate, String organizerEmail, Map<Long, String> memberEmails) {
         try {
 
             // Create a TimeZone
-            TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
-            TimeZone timezone = registry.getTimeZone("America/Mexico_City");
-            VTimeZone tz = timezone.getVTimeZone();
+            //TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
+            //TimeZone timezone = registry.getTimeZone("America/Mexico_City");
+            //VTimeZone tz = timezone.getVTimeZone();
 
             
             // Create the event
@@ -37,27 +38,29 @@ public class CalendarCreator {
             VEvent meeting = new VEvent(start, end, eventName);
 
             // add timezone info..
-            meeting.getProperties().add(tz.getTimeZoneId());
+            //meeting.getProperties().add(tz.getTimeZoneId());
 
             // generate unique identifier..
             UidGenerator ug = new UidGenerator("uidGen");
             Uid uid = ug.generateUid();
             meeting.getProperties().add(uid);
+            // Version 2.0 
+            meeting.getProperties().add(Version.VERSION_2_0);
 
-            for (Attendee attendee : attendeeList)
-            {
-                if (attendee != organizer)
-                {
+            for (Map.Entry<Long, String> memberEmail : memberEmails.entrySet()) {
+                if (!memberEmail.getValue().equals(organizerEmail)) {
+                    Attendee attendee = new Attendee(java.net.URI.create("mailto:" + memberEmail.getValue()));
                     attendee.getParameters().add(Role.REQ_PARTICIPANT);
-                    meeting.getProperties().add(attendee);    
+                    //dev1.getParameters().add(new Cn("Developer 1")); // Add if we want to add friendly name
+                    meeting.getProperties().add(attendee);
                 }
             }
-            
-            organizer.getParameters().add(Role.CHAIR);
+
+            Organizer organizer = new Organizer(java.net.URI.create("mailto:" + organizerEmail));
             meeting.getProperties().add(organizer);
 
-            // Create a calendar
-            net.fortuna.ical4j.model.Calendar icsCalendar = new net.fortuna.ical4j.model.Calendar();
+            
+            Calendar icsCalendar = new Calendar();
             icsCalendar.getProperties().add(new ProdId("-//Events Calendar//iCal4j 1.0//EN"));
             icsCalendar.getProperties().add(CalScale.GREGORIAN);
 
@@ -68,9 +71,6 @@ public class CalendarCreator {
         } catch (SocketException e) {
             logger.info("Got SocketException: " + e.getMessage());
             return null;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
         }
         
     }
