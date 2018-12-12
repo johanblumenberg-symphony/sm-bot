@@ -5,6 +5,10 @@ import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.ws.rs.core.NoContentException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -18,12 +22,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import clients.SymBotClient;
+import exceptions.SymClientException;
 import listeners.RoomListener;
 import model.InboundMessage;
 import model.OutboundMessage;
 import model.RoomMember;
 import model.Stream;
-import model.User;
+import model.UserInfo;
 import model.events.RoomCreated;
 import model.events.RoomDeactivated;
 import model.events.RoomMemberDemotedFromOwner;
@@ -84,24 +89,24 @@ public class RoomListenerTestImpl implements RoomListener {
     }
     
     private boolean hasHelpOption(String[] args) throws ParseException {
-    	Options options = new Options();
-    	options.addOption("h", "help", false, "Show this help");
+    	Options helpOptions = new Options();
+    	helpOptions.addOption("h", "help", false, "Show this help");
         CommandLineParser parser = new DefaultParser();
-        CommandLine cmd = parser.parse( options, args, true);
+        CommandLine cmd = parser.parse(helpOptions, args, true);
     	return cmd.hasOption("help");
+    }
+    
+    private Map<Long, String> getMemberEmails(String streamId) throws SymClientException, NoContentException {
+    	Long botUserId = this.botClient.getBotUserInfo().getId();
+    	List<RoomMember> members = this.botClient.getStreamsClient().getRoomMembers(streamId);
+    	List<Long> memberIds = members.stream().map(member -> member.getId()).filter(id -> !id.equals(botUserId)).collect(Collectors.toList());
+    	List<UserInfo> users = this.botClient.getUsersClient().getUsersFromIdList(memberIds, true);
+    	return users.stream().collect(Collectors.toMap(UserInfo::getId, UserInfo::getEmailAddress));
     }
     
     private void onBotMessage(String streamId, String message) {
     	logger.info("onBotMessage()");
-    	
-    	List<RoomMember> members = this.botClient.getStreamsClient().getRoomMembers(streamId);
-    	
-    	if (members == null) {
-    		logger.error("Members is null");
-    		replyMessage(streamId, "Failed to schedule meeting");
-    		return;
-    	}
-    	
+
         try {
         	String[] args = parseArgs(message);
         	
@@ -109,7 +114,7 @@ public class RoomListenerTestImpl implements RoomListener {
 	        	replyHelpMessage(streamId);
 	        } else {
 		        CommandLineParser parser = new DefaultParser();
-		        CommandLine cmd = parser.parse( options, args);
+		        CommandLine cmd = parser.parse(options, args);
 		        
 		        String date = cmd.getOptionValue("date");
 	        	String time = cmd.getOptionValue("time");
@@ -120,8 +125,9 @@ public class RoomListenerTestImpl implements RoomListener {
 
 	        	String msg = "Schedule meeting \"" + subject + "\" at " + d.toString();
 	        	
-	        	for (RoomMember member : members) {
-	        		msg = msg + "\n  Inviting " + member.getId();
+	        	Map<Long, String> memberEmails = getMemberEmails(streamId);
+	        	for (Map.Entry<Long, String> memberEmail : memberEmails.entrySet()) {
+	        		msg = msg + "\n  Inviting " + memberEmail.getKey() + " " + memberEmail.getValue();
 	        	}
 	        	
 	        	logger.info(msg);
@@ -132,6 +138,12 @@ public class RoomListenerTestImpl implements RoomListener {
         	replyHelpMessage(streamId, e.getMessage());
         } catch (java.text.ParseException e) {
         	logger.info("Got date ParseException: " + e.getMessage());
+        	replyHelpMessage(streamId, e.getMessage());
+		} catch (SymClientException e) {
+        	logger.info("Got SymClientException: " + e.getMessage());
+        	replyHelpMessage(streamId, e.getMessage());
+		} catch(NoContentException e) {
+        	logger.info("Got NoContentException: " + e.getMessage());
         	replyHelpMessage(streamId, e.getMessage());
 		}
     }
