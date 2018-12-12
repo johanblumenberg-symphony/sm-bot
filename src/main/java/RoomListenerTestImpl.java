@@ -126,14 +126,23 @@ public class RoomListenerTestImpl implements RoomListener {
 	        	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	        	Date d = formatter.parse(date + " " + time);
 
-	        	URIBuilder b = new URIBuilder("https://st2.symphony.com/client/rtc.html");
+	        	String realStreamId = streamId.replaceAll("_", "/");
+	        	while (realStreamId.length() % 3 != 0) {
+	        		realStreamId += '=';
+	        	}
+	        		        	
+	        	URIBuilder b = new URIBuilder();
+	        	b.setScheme("https");
+	        	b.setHost(this.botClient.getConfig().getPodHost());
+	        	b.setPort(this.botClient.getConfig().getPodPort());
+	        	b.setPath("/client/rtc.html");
 	        	b.addParameter("v2", "true");
 	        	b.addParameter("startAudioMuted", "false");
 	        	b.addParameter("startVideoMuted", "true");
-	        	b.addParameter("streamId", streamId);
+	        	b.addParameter("streamId", realStreamId);
 	        	URI meetingUrl = b.build();
 	        	
-	        	String msg = "Schedule meeting \"" + subject + "\" at " + d.toString();	        	
+	        	String msg = "Schedule meeting \"" + subject + "\" at " + d.toString() + "\n";
 	        	msg += "Meeting URL: " + meetingUrl.toString() + "\n";
 	        	
 	        	Map<Long, String> memberEmails = getMemberEmails(streamId);
