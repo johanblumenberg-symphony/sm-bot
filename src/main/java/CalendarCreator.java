@@ -6,12 +6,17 @@ import net.fortuna.ical4j.util.*;
 import net.fortuna.ical4j.model.property.*;
 import net.fortuna.ical4j.model.parameter.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.SocketException;
 import java.net.URI;
 import java.util.Date;
 import java.util.ArrayList;
 
 public class CalendarCreator {
+
+    private final Logger logger = LoggerFactory.getLogger(CalendarCreator.class);
 
     net.fortuna.ical4j.model.Calendar createCalendarEvent(String meetingName, java.util.Date startDate,
             java.util.Date endDate, Attendee organizer, ArrayList<Attendee> attendeeList) {
@@ -59,6 +64,7 @@ public class CalendarCreator {
             return icsCalendar;
 
         } catch (SocketException e) {
+            logger.info("Got SocketException: " + e.getMessage());
             return null;
         }
     }
