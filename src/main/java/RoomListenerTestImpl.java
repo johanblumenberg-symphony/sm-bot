@@ -164,7 +164,7 @@ public class RoomListenerTestImpl implements RoomListener {
 				
 	        	replyMessage(streamId, msg);
 
-	        	net.fortuna.ical4j.model.Calendar icsCalendar = calendarCreator.createCalendarEvent(subject, start, end, sender, memberEmails);
+	        	net.fortuna.ical4j.model.Calendar icsCalendar = calendarCreator.createCalendarEvent(subject, start, end, sender, memberEmails, meetingUrl.toString());
 				
 				List<String> receivers = memberEmails.entrySet().stream().map(e -> e.getValue()).collect(Collectors.toList());
 	        	new EmailSender().sendEmail(subject, receivers, icsCalendar.toString());				

@@ -22,7 +22,7 @@ public class CalendarCreator {
     private final Logger logger = LoggerFactory.getLogger(CalendarCreator.class);
 
     Calendar createCalendarEvent(String meetingName, java.util.Date startDate,
-            java.util.Date endDate, String organizerEmail, Map<Long, String> memberEmails) {
+            java.util.Date endDate, String organizerEmail, Map<Long, String> memberEmails, String meetingUrl) {
         try {
 
             // Create a TimeZone
@@ -59,6 +59,7 @@ public class CalendarCreator {
             Organizer organizer = new Organizer(java.net.URI.create("mailto:" + organizerEmail));
             meeting.getProperties().add(organizer);
 
+            meeting.getProperties().add(new Description("Join: " + meetingUrl));
             
             Calendar icsCalendar = new Calendar();
             icsCalendar.getProperties().add(new ProdId("-//Events Calendar//iCal4j 1.0//EN"));
