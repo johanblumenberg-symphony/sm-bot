@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +96,7 @@ public class RoomListenerTestImpl implements RoomListener {
     	Options helpOptions = new Options();
     	helpOptions.addOption("h", "help", false, "Show this help");
         CommandLineParser parser = new DefaultParser();
-        CommandLine cmd = parser.parse(helpOptions, args, true);
+        CommandLine cmd = parser.parse(helpOptions, Arrays.copyOfRange(args, 1, args.length), true);
     	return cmd.hasOption("help");
     }
     
