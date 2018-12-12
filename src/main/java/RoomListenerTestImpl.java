@@ -154,12 +154,11 @@ public class RoomListenerTestImpl implements RoomListener {
 	        	b.addParameter("streamId", realStreamId);
 	        	URI meetingUrl = b.build();
 	        	
-	        	String msg = "Schedule meeting \"" + subject + "\" at " + start.toString() + " to " + end.toString() + "\n";
-	        	msg += "Meeting URL: " + meetingUrl.toString() + "\n";
+	        	String msg = "Scheduling a meeting \"" + subject + "\" at " + start.toString() + " to " + end.toString() + "\n";
 	        	
 	        	Map<Long, String> memberEmails = getMemberEmails(streamId);
 	        	for (Map.Entry<Long, String> memberEmail : memberEmails.entrySet()) {
-	        		msg = msg + "\n  Inviting " + memberEmail.getKey() + " " + memberEmail.getValue();
+	        		msg = msg + "\n  Sending an invite to: "  + memberEmail.getValue();
 	        	}
 				
 	        	replyMessage(streamId, msg);
