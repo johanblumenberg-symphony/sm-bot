@@ -166,7 +166,7 @@ public class RoomListenerTestImpl implements RoomListener {
 				
 				//msg = msg + "\n " + icsCalendar.toString();
 
-	        	logger.info(msg);
+				logger.info(msg);
 	        	replyMessage(streamId, msg);
 	        }
         } catch (ParseException e) {
