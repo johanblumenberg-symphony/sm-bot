@@ -2,6 +2,8 @@ import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -17,6 +19,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.http.client.utils.URIBuilder;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,7 +126,15 @@ public class RoomListenerTestImpl implements RoomListener {
 	        	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	        	Date d = formatter.parse(date + " " + time);
 
-	        	String msg = "Schedule meeting \"" + subject + "\" at " + d.toString();
+	        	URIBuilder b = new URIBuilder("https://st2.symphony.com/client/rtc.html");
+	        	b.addParameter("v2", "true");
+	        	b.addParameter("startAudioMuted", "false");
+	        	b.addParameter("startVideoMuted", "true");
+	        	b.addParameter("streamId", streamId);
+	        	URI meetingUrl = b.build();
+	        	
+	        	String msg = "Schedule meeting \"" + subject + "\" at " + d.toString();	        	
+	        	msg += "Meeting URL: " + meetingUrl.toString() + "\n";
 	        	
 	        	Map<Long, String> memberEmails = getMemberEmails(streamId);
 	        	for (Map.Entry<Long, String> memberEmail : memberEmails.entrySet()) {
@@ -145,6 +156,9 @@ public class RoomListenerTestImpl implements RoomListener {
 		} catch(NoContentException e) {
         	logger.info("Got NoContentException: " + e.getMessage());
         	replyHelpMessage(streamId, e.getMessage());
+		} catch (URISyntaxException e) {
+			logger.info("Got URISyntaxException: ", e);
+			replyHelpMessage(streamId, "Failed to schedule meeting");
 		}
     }
     
