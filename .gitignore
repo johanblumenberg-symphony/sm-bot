@@ -3,4 +3,6 @@
 /.settings/
 .project
 .classpath
+.idea
+.vscode
 dependency-reduced-pom.xml

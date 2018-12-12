@@ -18,9 +18,9 @@
     "proxyUsername": "",
     "proxyPassword": "",
     "authTokenRefreshPeriod": "30",
-    "truststorePath": "/Users/johan.blumenberg/code/sm-bot/certificates/all_symphony_certs_truststore",
+    "truststorePath": "/Users/anumeet.singh/Development/Hackathon/SMBot/sm-bot/certificates/all_symphony_certs_truststore",
     "truststorePassword": "changeit", 
-    "botPrivateKeyPath": "/Users/johan.blumenberg/code/sm-bot/rsa/",
+    "botPrivateKeyPath": "/Users/anumeet.singh/Development/Hackathon/SMBot/sm-bot/rsa/",
     "botPrivateKeyName": "rsa-private-sm-bot.pem",
     "botUsername": "sm-bot"
 }
