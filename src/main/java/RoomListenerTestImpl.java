@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -108,6 +109,13 @@ public class RoomListenerTestImpl implements RoomListener {
     	return users.stream().collect(Collectors.toMap(UserInfo::getId, UserInfo::getEmailAddress));
     }
     
+    private Date getEndTime(Date start, Integer duration) {
+    	Calendar end = Calendar.getInstance();
+    	end.setTime(start);
+    	end.add(Calendar.MINUTE, duration);    
+    	return end.getTime();
+    }
+    
     private void onBotMessage(String streamId, String message) {
     	logger.info("onBotMessage()");
 
@@ -125,8 +133,9 @@ public class RoomListenerTestImpl implements RoomListener {
 	        	String subject = cmd.getOptionValue("subject");
 	        	
 	        	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-	        	Date d = formatter.parse(date + " " + time);
-
+	        	Date start = formatter.parse(date + " " + time);
+	        	Date end = getEndTime(start, Integer.parseInt(cmd.getOptionValue("duration")));
+	        	
 	        	String realStreamId = streamId.replaceAll("_", "/");
 	        	while (realStreamId.length() % 3 != 0) {
 	        		realStreamId += '=';
@@ -143,7 +152,7 @@ public class RoomListenerTestImpl implements RoomListener {
 	        	b.addParameter("streamId", realStreamId);
 	        	URI meetingUrl = b.build();
 	        	
-	        	String msg = "Schedule meeting \"" + subject + "\" at " + d.toString() + "\n";
+	        	String msg = "Schedule meeting \"" + subject + "\" at " + start.toString() + " to " + end.toString() + "\n";
 	        	msg += "Meeting URL: " + meetingUrl.toString() + "\n";
 	        	
 	        	Map<Long, String> memberEmails = getMemberEmails(streamId);
